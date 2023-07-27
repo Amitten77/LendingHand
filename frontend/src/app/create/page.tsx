@@ -16,13 +16,17 @@ const CreatePost = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({ title: '', description: '', goal: '' });
   const [lendinghand, setLendingHand] = useState<any>();
+  const [web3, setWeb3] = useState<any>();
   const { account } = useAccount()
 
   useEffect(() => {
     console.log(account)
     console.log("HI")
     const loadBlockchainData = async () => {
-      const web3 = new Web3(window.ethereum);
+      const init_web3 = new Web3(window.ethereum);
+      if (init_web3) {
+        setWeb3(init_web3)
+      }
       //Load Account
       const networkId = await window.ethereum?.request({ method: 'net_version' });
       const networkData = LendingHand.networks[networkId as keyof typeof LendingHand.networks];
@@ -30,7 +34,7 @@ const CreatePost = () => {
         const abi = LendingHand.abi
         const address = networkData.address
         console.log(abi, address)
-         const lendinghand = new web3.eth.Contract(abi, address)
+         const lendinghand = new init_web3.eth.Contract(abi, address)
          setLendingHand(lendinghand);
       setLoading(false)
     }
@@ -59,7 +63,7 @@ const CreatePost = () => {
     console.log('Form submitted:', formData);
 
 
-    lendinghand.methods.createPost(formData.title, formData.description, BigNumber(formData.goal)).send({from: account }).once('receipt', (receipt: any) => {
+    lendinghand.methods.createPost(formData.title, formData.description, web3.utils.toWei(formData.goal, 'ether')).send({from: account[0] }).once('receipt', (receipt: any) => {
       setLoading(false)
       })
 
