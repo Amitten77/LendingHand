@@ -4,5 +4,8 @@
 ### Local Installation Instructions
 
 ```
-git clone 
+git clone https://github.com/Amitten77/LendingHand.git
+cd frontend
+npm i
+npm run dev
 ```
