@@ -4,7 +4,15 @@ import LendingHand from "../../../../backend/src/abis/LendingHand.json";
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import useAccount from "@/contexts/AuthContext";
+import { db } from '../../../firebase'; // Import firestore
+import { collection, addDoc } from "firebase/firestore";
+
+
 import BigNumber from "bignumber.js";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
+
+
 
 import { BeatLoader } from "react-spinners";
 
@@ -13,9 +21,10 @@ const CreatePost = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    goal: "",
+    goal: 0,
     deadline: "",
     currency: "",
+    current: 0,
   });
   const [lendinghand, setLendingHand] = useState<any>();
   const [web3, setWeb3] = useState<any>();
@@ -48,6 +57,7 @@ const CreatePost = () => {
           "Please connect your Metamask Account to the Goerli TestNet"
         );
       }
+      
     };
 
     loadBlockchainData().catch(console.error);
@@ -60,7 +70,7 @@ const CreatePost = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const  handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     console.log("Form submitted:", formData);
@@ -79,13 +89,36 @@ const CreatePost = () => {
     setFormData({
       title: "",
       description: "",
-      goal: "",
+      goal: 0,
       deadline: "",
       currency: "",
+      current: 0,
     });
 
+    console.log("Form submitted:", formData);
+
+    try {
+        const docRef = await addDoc(collection(db, "posts"), formData);
+        console.log("Document written with ID: ", docRef.id);
+        setLoading(false);
+        // Reset form data
+        setFormData({
+            title: "",
+            description: "",
+            goal: 0,
+            deadline: "",
+            currency: "",
+            current: 0,
+        });
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        setLoading(false);
+    }
+    
+
+
     setLoading(true);
-  };
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -179,8 +212,8 @@ const CreatePost = () => {
               onChange={handleChange}
               className="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-blue-200 appearance-none transition duration-150"
             >
-              <option value="ETH">Ethereum (ETH)</option>
-              <option value="BTC">Bitcoin (BTC)</option>
+              <option value="GWEI">GWEI</option>
+              <option value="WEI">WEI</option>
             </select>
           </div>
         </div>
@@ -203,25 +236,12 @@ const CreatePost = () => {
           />
         </div>
 
-        <div>
-        <label htmlFor="image" className="block text-sm font-medium text-gray-600">Fundraiser Image:</label>
-        <input 
-            type="file" 
-            id="image" 
-            name="image" 
-            onChange={handleImageChange}
-            className="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-blue-200 appearance-none transition duration-150 cursor-pointer"
-        />
-        {imagePreview && (
-            <div className="mt-2">
-                <img src={imagePreview} alt="Preview" className="w-full h-64 rounded-md object-cover"/>
-            </div>
-        )}
-    </div>
+      
 
         <button
           type="submit"
           className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-200 transform transition hover:scale-105 active:bg-blue-800"
+          onClick={handleOnSubmit}
         >
           Submit
         </button>
