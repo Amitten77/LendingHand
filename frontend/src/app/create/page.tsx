@@ -212,6 +212,7 @@ const CreatePost = () => {
               onChange={handleChange}
               className="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-blue-200 appearance-none transition duration-150"
             >
+              <option value="ETH">ETH</option>
               <option value="GWEI">GWEI</option>
               <option value="WEI">WEI</option>
             </select>

@@ -96,7 +96,7 @@ const Lend = () => {
   fetchPosts();
   
 
-    loadBlockchainData().catch(console.error);
+    // loadBlockchainData().catch(console.error);
   }, []);
 
   async function connectAndExecute() {
@@ -156,13 +156,23 @@ const Lend = () => {
     <h2 className="font-bold text-2xl mb-3">{post.title}</h2>
     <p className="text-md mb-3">{post.description}</p> {/* Added description */}
     <div className="mb-3">
-      <span className="text-sm font-semibold">Current Raised:</span>
-      <span className="text-sm"> {Number(post.current)} {post.currency}</span>
-    </div>
-    <div className="mb-4">
-      <span className="text-sm font-semibold">Goal:</span>
-      <span className="text-sm"> {Number(post.goal)} {post.currency}</span>
-    </div>
+  <span className="text-sm font-semibold">Current Raised: </span>
+  <span className="text-sm">
+    {post.currency === 'ETH' ? Number(post.current) : `${Number(post.current)} * 10^${post.currency === 'GWEI' ? '9' : '18'}`} {post.currency}
+  </span>
+</div>
+<div className="mb-4">
+  <span className="text-sm font-semibold">Goal: </span>
+  <span className="text-sm">
+    {post.currency === 'ETH' ? Number(post.goal) : `${Number(post.goal)} * 10^${post.currency === 'GWEI' ? '9' : '18'}`} {post.currency}
+  </span>
+</div>
+<div className="mb-4">
+  <span className="text-sm font-semibold">Deadline:</span>
+  <span className="text-sm"> {post.deadline}</span>
+</div>
+
+
     <button
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg mt-4"
       onClick={() => handleDonateClick(post)}
